@@ -1,0 +1,34 @@
+{
+  "name": "ppop-dbmanager",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Customer contact management desktop application with cold email functionality",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:api": "pnpm --filter @ppop/api dev",
+    "dev:desktop": "pnpm --filter @ppop/desktop dev",
+    "dev:landing": "pnpm --filter @ppop/landing dev",
+    "build": "pnpm -r build",
+    "build:api": "pnpm --filter @ppop/api build",
+    "build:desktop": "pnpm --filter @ppop/desktop build",
+    "build:landing": "pnpm --filter @ppop/landing build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean && rimraf dist",
+    "version:patch": "npm version patch && git push origin main && git push --tags",
+    "version:minor": "npm version minor && git push origin main && git push --tags",
+    "version:major": "npm version major && git push origin main && git push --tags",
+    "db:generate": "pnpm --filter @ppop/api db:generate",
+    "db:migrate": "pnpm --filter @ppop/api db:migrate",
+    "db:push": "pnpm --filter @ppop/api db:push"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.4"
+}

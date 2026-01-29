@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+out/
+build/
+*.exe
+*.dmg
+*.AppImage
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test
+coverage/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Electron
+release/
+
+# Next.js
+.next/
+.vercel/
+
+# Misc
+*.tsbuildinfo
+.turbo/

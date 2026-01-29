@@ -1,0 +1,44 @@
+---
+description: PPOP DB Manager project rules
+globs: ["**/*"]
+---
+
+# Project Rules
+
+## Architecture
+- Monorepo structure with pnpm workspaces
+- apps/: Executable/deployable units (api, desktop, landing)
+- packages/: Shared code (types, config, utils)
+
+## Tech Stack
+- Desktop: Electron + React + TypeScript
+- API: Express + Prisma + PostgreSQL
+- Landing: Next.js
+- Email: Nodemailer
+
+## Coding Standards
+- TypeScript strict mode
+- File size limit: ~2000 characters
+- One responsibility per file/function
+- English for code, Korean allowed in comments only
+- No emojis in code/logs/commits
+
+## Error Handling
+- Use AppError class from @ppop/utils
+- Wrap external errors with domain errors
+- No console.log for debugging (use logger)
+
+## Environment
+- DEV: Single .env file
+- PROD: GitHub Environment variables
+
+## Commands (from root)
+- pnpm dev - Run all apps
+- pnpm build - Build all apps
+- pnpm clean - Clean artifacts
+- pnpm version:patch - Release new version
+
+## CI/CD
+- Trigger: git push --tags
+- Builds: exe (Windows), dmg (macOS)
+- Deploy: Railway (API, Landing)

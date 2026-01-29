@@ -1,0 +1,53 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.nav {
+  width: 200px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 32px;
+  padding: 0 12px;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.link:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.active {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+.main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}

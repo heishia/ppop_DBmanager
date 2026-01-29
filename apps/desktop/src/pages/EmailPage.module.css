@@ -1,0 +1,133 @@
+.page {
+  max-width: 1200px;
+}
+
+.page h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+}
+
+.warningCard {
+  border-color: var(--warning);
+  margin-bottom: 24px;
+}
+
+.warningCard h3 {
+  color: var(--warning);
+  margin-bottom: 8px;
+}
+
+.resultCard {
+  border-color: var(--success);
+  margin-bottom: 24px;
+}
+
+.resultCard h3 {
+  color: var(--success);
+  margin-bottom: 8px;
+}
+
+.success {
+  color: var(--success);
+}
+
+.failed {
+  color: var(--danger);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.recipientsCard,
+.composeCard {
+  height: fit-content;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cardHeader h3,
+.composeCard h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.composeCard h3 {
+  margin-bottom: 16px;
+}
+
+.recipientList {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.recipientItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.recipientItem:last-child {
+  border-bottom: none;
+}
+
+.recipientItem:hover {
+  background: var(--bg);
+}
+
+.recipientItem input {
+  flex-shrink: 0;
+}
+
+.recipientName {
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.recipientEmail {
+  color: var(--text-muted);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selectedCount {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 200px;
+}
