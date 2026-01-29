@@ -1,17 +1,38 @@
 import { useState, useEffect } from 'react';
-import { getCustomers, sendBulkEmail, verifyEmailConfig } from '../lib/api';
-import type { CustomerWithContacts } from '@ppop/types';
+import {
+  getCustomers,
+  sendBulkEmail,
+  verifyEmailConfig,
+  getGroups,
+  createGroup,
+  getGroupCustomerIds,
+  addGroupMembers,
+  deleteGroup,
+} from '../lib/api';
+import type { CustomerWithContacts, CustomerGroupWithCount } from '@ppop/types';
 import styles from './EmailPage.module.css';
+
+type TabType = 'individual' | 'group';
 
 function EmailPage() {
   const [customers, setCustomers] = useState<CustomerWithContacts[]>([]);
+  const [groups, setGroups] = useState<CustomerGroupWithCount[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [emailConfigured, setEmailConfigured] = useState<boolean | null>(null);
   const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<TabType>('individual');
+  
+  // Create group form
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [creatingGroup, setCreatingGroup] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -20,12 +41,14 @@ function EmailPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [customersResult, configured] = await Promise.all([
+      const [customersResult, configured, groupsResult] = await Promise.all([
         getCustomers(1, 100),
         verifyEmailConfig(),
+        getGroups(),
       ]);
       setCustomers(customersResult.items);
       setEmailConfigured(configured);
+      setGroups(groupsResult);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -51,6 +74,73 @@ function EmailPage() {
     }
   };
 
+  const handleGroupSelect = async (groupId: string) => {
+    setSelectedGroupId(groupId);
+    if (groupId) {
+      try {
+        const customerIds = await getGroupCustomerIds(groupId);
+        setSelectedIds(new Set(customerIds));
+      } catch (error) {
+        console.error('Failed to load group members:', error);
+      }
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim()) return;
+    
+    setCreatingGroup(true);
+    try {
+      const newGroup = await createGroup({ name: newGroupName.trim() });
+      setGroups([...groups, newGroup]);
+      setNewGroupName('');
+      setShowCreateGroup(false);
+      setSelectedGroupId(newGroup.id);
+    } catch (error) {
+      console.error('Failed to create group:', error);
+      alert('그룹 생성에 실패했습니다');
+    } finally {
+      setCreatingGroup(false);
+    }
+  };
+
+  const handleSaveSelectionToGroup = async () => {
+    if (!selectedGroupId || selectedIds.size === 0) {
+      alert('그룹을 선택하고 고객을 선택해주세요');
+      return;
+    }
+    
+    try {
+      const added = await addGroupMembers(selectedGroupId, Array.from(selectedIds));
+      alert(`${added}명이 그룹에 추가되었습니다`);
+      // Reload groups to update member count
+      const updatedGroups = await getGroups();
+      setGroups(updatedGroups);
+    } catch (error) {
+      console.error('Failed to add members:', error);
+      alert('멤버 추가에 실패했습니다');
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!selectedGroupId) return;
+    
+    const group = groups.find(g => g.id === selectedGroupId);
+    if (!confirm(`"${group?.name}" 그룹을 삭제하시겠습니까?`)) return;
+    
+    try {
+      await deleteGroup(selectedGroupId);
+      setGroups(groups.filter(g => g.id !== selectedGroupId));
+      setSelectedGroupId('');
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      alert('그룹 삭제에 실패했습니다');
+    }
+  };
+
   const handleSend = async () => {
     if (selectedIds.size === 0 || !subject || !body) {
       alert('수신자를 선택하고 제목과 본문을 입력해주세요');
@@ -70,6 +160,7 @@ function EmailPage() {
       setSelectedIds(new Set());
       setSubject('');
       setBody('');
+      setSelectedGroupId('');
     } catch (error) {
       console.error('Failed to send emails:', error);
       alert('이메일 발송에 실패했습니다');
@@ -81,6 +172,8 @@ function EmailPage() {
   if (loading) {
     return <div className={styles.loading}>불러오는 중...</div>;
   }
+
+  const selectedGroup = groups.find(g => g.id === selectedGroupId);
 
   return (
     <div className={styles.page}>
@@ -109,10 +202,120 @@ function EmailPage() {
         <div className={`card ${styles.recipientsCard}`}>
           <div className={styles.cardHeader}>
             <h3>수신자</h3>
-            <button className="btn btn-outline" onClick={selectAll}>
-              {selectedIds.size === customers.length ? '선택 해제' : '전체 선택'}
+          </div>
+
+          {/* Tabs */}
+          <div className={styles.tabs}>
+            <button
+              className={`${styles.tab} ${activeTab === 'individual' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('individual')}
+            >
+              개별 선택
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'group' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('group')}
+            >
+              그룹 선택
             </button>
           </div>
+
+          {/* Group Section */}
+          {activeTab === 'group' && (
+            <div className={styles.groupSection}>
+              <div className={styles.groupHeader}>
+                <select
+                  className={styles.groupSelect}
+                  value={selectedGroupId}
+                  onChange={(e) => handleGroupSelect(e.target.value)}
+                >
+                  <option value="">그룹 선택...</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name} ({group.memberCount}명)
+                    </option>
+                  ))}
+                </select>
+                <div className={styles.groupActions}>
+                  <button
+                    className={`btn btn-outline ${styles.btnSmall}`}
+                    onClick={() => setShowCreateGroup(!showCreateGroup)}
+                  >
+                    {showCreateGroup ? '취소' : '+ 새 그룹'}
+                  </button>
+                  {selectedGroupId && (
+                    <button
+                      className={`btn btn-outline ${styles.btnSmall}`}
+                      onClick={handleDeleteGroup}
+                      style={{ color: 'var(--danger)' }}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {showCreateGroup && (
+                <div className={styles.createGroupForm}>
+                  <input
+                    className="input"
+                    placeholder="새 그룹 이름"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
+                  />
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleCreateGroup}
+                    disabled={creatingGroup || !newGroupName.trim()}
+                  >
+                    {creatingGroup ? '생성 중...' : '생성'}
+                  </button>
+                </div>
+              )}
+
+              {selectedGroup && (
+                <div className={styles.groupInfo}>
+                  <strong>{selectedGroup.name}</strong> 그룹에서 {selectedIds.size}명 선택됨
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Individual Selection Header */}
+          {activeTab === 'individual' && (
+            <div className={styles.groupHeader}>
+              <button className="btn btn-outline" onClick={selectAll}>
+                {selectedIds.size === customers.length ? '선택 해제' : '전체 선택'}
+              </button>
+              {selectedIds.size > 0 && groups.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <select
+                    className={styles.groupSelect}
+                    value={selectedGroupId}
+                    onChange={(e) => setSelectedGroupId(e.target.value)}
+                    style={{ width: 'auto' }}
+                  >
+                    <option value="">그룹에 저장...</option>
+                    {groups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedGroupId && (
+                    <button
+                      className={`btn btn-outline ${styles.btnSmall}`}
+                      onClick={handleSaveSelectionToGroup}
+                    >
+                      저장
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className={styles.recipientList}>
             {customers.map((customer) => (
               <label key={customer.id} className={styles.recipientItem}>

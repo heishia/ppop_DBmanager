@@ -10,6 +10,10 @@ import type {
   ImportResult,
   PaginatedResponse,
   ApiResponse,
+  CustomerGroupWithCount,
+  CustomerGroupWithMembers,
+  CreateGroupDto,
+  UpdateGroupDto,
 } from '@ppop/types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -153,4 +157,48 @@ export async function previewFromBuffer(base64: string, filename: string): Promi
   const blob = new Blob([bytes]);
   const file = new File([blob], filename);
   return previewFile(file);
+}
+
+// Group API
+export async function getGroups(): Promise<CustomerGroupWithCount[]> {
+  const res = await api.get<ApiResponse<CustomerGroupWithCount[]>>('/groups');
+  return res.data.data!;
+}
+
+export async function getGroup(id: string): Promise<CustomerGroupWithMembers> {
+  const res = await api.get<ApiResponse<CustomerGroupWithMembers>>(`/groups/${id}`);
+  return res.data.data!;
+}
+
+export async function createGroup(dto: CreateGroupDto): Promise<CustomerGroupWithCount> {
+  const res = await api.post<ApiResponse<CustomerGroupWithCount>>('/groups', dto);
+  return res.data.data!;
+}
+
+export async function updateGroup(id: string, dto: UpdateGroupDto): Promise<CustomerGroupWithCount> {
+  const res = await api.patch<ApiResponse<CustomerGroupWithCount>>(`/groups/${id}`, dto);
+  return res.data.data!;
+}
+
+export async function deleteGroup(id: string): Promise<void> {
+  await api.delete(`/groups/${id}`);
+}
+
+export async function addGroupMembers(groupId: string, customerIds: string[]): Promise<number> {
+  const res = await api.post<ApiResponse<{ added: number }>>(`/groups/${groupId}/members`, {
+    customerIds,
+  });
+  return res.data.data!.added;
+}
+
+export async function removeGroupMembers(groupId: string, customerIds: string[]): Promise<number> {
+  const res = await api.delete<ApiResponse<{ removed: number }>>(`/groups/${groupId}/members`, {
+    data: { customerIds },
+  });
+  return res.data.data!.removed;
+}
+
+export async function getGroupCustomerIds(groupId: string): Promise<string[]> {
+  const res = await api.get<ApiResponse<string[]>>(`/groups/${groupId}/customer-ids`);
+  return res.data.data!;
 }

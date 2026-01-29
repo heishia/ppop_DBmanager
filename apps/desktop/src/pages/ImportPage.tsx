@@ -5,14 +5,48 @@ import styles from './ImportPage.module.css';
 
 type Step = 'select' | 'preview' | 'result';
 
+// AI 스파클 아이콘
+const SparkleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+    <circle cx="12" cy="12" r="3" fill="currentColor" />
+  </svg>
+);
+
+// 강아지 아이콘
+const DogIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    {/* 귀 */}
+    <path d="M4 4c0 3 1 5 3 6" strokeLinecap="round" />
+    <path d="M20 4c0 3-1 5-3 6" strokeLinecap="round" />
+    {/* 얼굴 */}
+    <ellipse cx="12" cy="13" rx="7" ry="6" />
+    {/* 눈 */}
+    <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+    <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+    {/* 코 */}
+    <ellipse cx="12" cy="15" rx="1.5" ry="1" fill="currentColor" />
+    {/* 입 */}
+    <path d="M12 16v1.5" strokeLinecap="round" />
+    <path d="M10 17.5c.5.5 1.5.8 2 .8s1.5-.3 2-.8" strokeLinecap="round" />
+  </svg>
+);
+
 function ImportPage() {
   const [step, setStep] = useState<Step>('select');
   const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [loadingPhase, setLoadingPhase] = useState(0);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileData, setFileData] = useState<{ buffer: string; name: string } | null>(null);
+
+  const loadingMessages = [
+    '파일을 읽고 있어요...',
+    'AI가 열 구조를 분석 중...',
+    '데이터 패턴을 인식하는 중...',
+    '최적의 매핑을 찾고 있어요...',
+  ];
 
   const handleSelectFile = async () => {
     setError(null);
@@ -25,16 +59,21 @@ function ImportPage() {
 
       setFileData({ buffer: file.buffer, name: file.name });
       setLoading(true);
-      setLoadingMessage('AI가 데이터를 분석 중...');
+      setLoadingPhase(0);
+
+      // 로딩 메시지 순환
+      const interval = setInterval(() => {
+        setLoadingPhase((prev) => (prev + 1) % loadingMessages.length);
+      }, 1200);
 
       const previewResult = await previewFromBuffer(file.buffer, file.name);
+      clearInterval(interval);
       setPreview(previewResult);
       setStep('preview');
     } catch (err) {
       setError(err instanceof Error ? err.message : '파일 분석 실패');
     } finally {
       setLoading(false);
-      setLoadingMessage('');
     }
   };
 
@@ -66,10 +105,15 @@ function ImportPage() {
 
   return (
     <div className={styles.page}>
-      <h1>고객 가져오기</h1>
-      <p className={styles.description}>
-        CSV 또는 Excel 파일에서 고객 데이터를 가져옵니다. AI가 자동으로 열을 매핑해요!
-      </p>
+      <div className={styles.header}>
+        <h1>
+          <span className={styles.aiGradient}>AI</span> 자동 가져오기
+          <span className={styles.sparkle}><SparkleIcon /></span>
+        </h1>
+        <p className={styles.description}>
+          어떤 형식의 파일이든 AI가 자동으로 분석하고 변환해요
+        </p>
+      </div>
 
       {/* Step Indicator */}
       <div className={styles.steps}>
@@ -79,7 +123,9 @@ function ImportPage() {
         </div>
         <div className={styles.stepLine} />
         <div className={`${styles.step} ${step === 'preview' ? styles.active : ''} ${step === 'result' ? styles.done : ''}`}>
-          <span className={styles.stepNumber}>2</span>
+          <span className={`${styles.stepNumber} ${styles.aiStep}`}>
+            <AIIcon />
+          </span>
           <span className={styles.stepLabel}>AI 분석</span>
         </div>
         <div className={styles.stepLine} />
@@ -103,26 +149,41 @@ function ImportPage() {
       {step === 'select' && !loading && (
         <div className={`card ${styles.uploadCard}`}>
           <div className={styles.uploadArea}>
-            <div className={styles.uploadIcon}>+</div>
-            <h3>가져올 파일 선택</h3>
-            <p>지원 형식: CSV, XLSX, XLS</p>
-            <p className={styles.aiNote}>어떤 열 이름이든 AI가 자동으로 분석해요!</p>
+            <div className={styles.uploadIcon}>
+              <DogIcon />
+            </div>
+            <h3>파일을 선택하세요</h3>
+            <p>CSV, XLSX, XLS 모두 지원</p>
+            <div className={styles.aiBadge}>
+              <SparkleIcon />
+              <span>AI가 열 이름을 자동 인식</span>
+            </div>
             <button
-              className="btn btn-primary"
+              className={`btn btn-primary ${styles.uploadBtn}`}
               onClick={handleSelectFile}
               disabled={loading}
             >
-              파일 선택
+              파일 선택하기
             </button>
           </div>
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Loading State - AI Analyzing */}
       {loading && (
         <div className={`card ${styles.loadingCard}`}>
-          <div className={styles.spinner} />
-          <p>{loadingMessage}</p>
+          <div className={styles.aiLoader}>
+            <div className={styles.aiLoaderRing} />
+            <div className={styles.aiLoaderIcon}>
+              <AIIcon />
+            </div>
+          </div>
+          <p className={styles.loadingText}>{loadingMessages[loadingPhase]}</p>
+          <div className={styles.loadingDots}>
+            <span className={styles.dot} />
+            <span className={styles.dot} />
+            <span className={styles.dot} />
+          </div>
         </div>
       )}
 
@@ -131,25 +192,39 @@ function ImportPage() {
         <div className={styles.previewSection}>
           {/* AI Mapping Result */}
           <div className={`card ${styles.mappingCard}`}>
-            <h3>AI 분석 결과</h3>
-            <p className={styles.fileInfo}>
-              파일: <strong>{fileData?.name}</strong> ({preview.totalRows}행)
-            </p>
+            <div className={styles.mappingHeader}>
+              <div className={styles.aiSuccessBadge}>
+                <SparkleIcon />
+                <span>AI 분석 완료</span>
+              </div>
+              <p className={styles.fileInfo}>
+                <strong>{fileData?.name}</strong> · {preview.totalRows}개 데이터 발견
+              </p>
+            </div>
 
             {preview.mapping ? (
               <div className={styles.mappingGrid}>
                 <div className={styles.mappingItem}>
-                  <span className={styles.mappingLabel}>이름 (name)</span>
+                  <span className={styles.mappingLabel}>
+                    <span className={styles.fieldIcon}>👤</span>
+                    이름
+                  </span>
                   <span className={styles.mappingArrow}>←</span>
                   <span className={styles.mappingSource}>{preview.mapping.name || '매핑 없음'}</span>
                 </div>
                 <div className={styles.mappingItem}>
-                  <span className={styles.mappingLabel}>이메일 (email)</span>
+                  <span className={styles.mappingLabel}>
+                    <span className={styles.fieldIcon}>📧</span>
+                    이메일
+                  </span>
                   <span className={styles.mappingArrow}>←</span>
                   <span className={styles.mappingSource}>{preview.mapping.email || '매핑 없음'}</span>
                 </div>
                 <div className={styles.mappingItem}>
-                  <span className={styles.mappingLabel}>전화번호 (phone)</span>
+                  <span className={styles.mappingLabel}>
+                    <span className={styles.fieldIcon}>📱</span>
+                    전화번호
+                  </span>
                   <span className={styles.mappingArrow}>←</span>
                   <span className={styles.mappingSource}>{preview.mapping.phone || '매핑 없음'}</span>
                 </div>

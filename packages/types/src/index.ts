@@ -76,6 +76,43 @@ export interface ImportError {
   message: string;
 }
 
+// Customer Group types
+export interface CustomerGroup {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CustomerGroupWithCount extends CustomerGroup {
+  memberCount: number;
+}
+
+export interface CustomerGroupWithMembers extends CustomerGroup {
+  members: Customer[];
+}
+
+export interface CreateGroupDto {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateGroupDto {
+  name?: string;
+  description?: string;
+}
+
+export interface AddMembersDto {
+  customerIds: string[];
+}
+
+export interface SendBulkEmailByGroupDto {
+  groupId: string;
+  subject: string;
+  body: string;
+}
+
 // API response types
 export interface ApiResponse<T> {
   success: boolean;
