@@ -23,7 +23,21 @@ const upload = multer({
   },
 });
 
-// POST /api/import/file
+// POST /api/import/preview - AI로 파일 분석 및 매핑 미리보기
+importRouter.post(
+  '/preview',
+  upload.single('file'),
+  asyncHandler(async (req, res) => {
+    if (!req.file) {
+      throw new AppError('No file uploaded', 'NO_FILE', 400);
+    }
+
+    const result = await importService.previewFile(req.file.buffer);
+    res.json({ success: true, data: result });
+  })
+);
+
+// POST /api/import/file - 매핑 적용하여 임포트
 importRouter.post(
   '/file',
   upload.single('file'),
@@ -32,7 +46,9 @@ importRouter.post(
       throw new AppError('No file uploaded', 'NO_FILE', 400);
     }
 
-    const result = await importService.importFromFile(req.file.buffer, req.file.originalname);
+    // 매핑 정보가 있으면 사용
+    const mapping = req.body.mapping ? JSON.parse(req.body.mapping) : undefined;
+    const result = await importService.importFromFile(req.file.buffer, req.file.originalname, mapping);
     res.json({ success: true, data: result });
   })
 );

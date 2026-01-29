@@ -86,9 +86,28 @@ export async function verifyEmailConfig(): Promise<boolean> {
 }
 
 // Import API
-export async function importFile(file: File): Promise<ImportResult> {
+export interface ColumnMapping {
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+export interface PreviewResult {
+  success: boolean;
+  columns: string[];
+  sampleRows: Record<string, unknown>[];
+  totalRows: number;
+  mapping?: ColumnMapping;
+  preview?: Array<{ name: string; email: string; phone: string }>;
+  error?: string;
+}
+
+export async function importFile(file: File, mapping?: ColumnMapping): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
+  if (mapping) {
+    formData.append('mapping', JSON.stringify(mapping));
+  }
 
   const res = await api.post<ApiResponse<ImportResult>>('/import/file', formData, {
     headers: {
@@ -98,7 +117,23 @@ export async function importFile(file: File): Promise<ImportResult> {
   return res.data.data!;
 }
 
-export async function importFromBuffer(base64: string, filename: string): Promise<ImportResult> {
+export async function previewFile(file: File): Promise<PreviewResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await api.post<ApiResponse<PreviewResult>>('/import/preview', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res.data.data!;
+}
+
+export async function importFromBuffer(
+  base64: string,
+  filename: string,
+  mapping?: ColumnMapping
+): Promise<ImportResult> {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
@@ -106,5 +141,16 @@ export async function importFromBuffer(base64: string, filename: string): Promis
   }
   const blob = new Blob([bytes]);
   const file = new File([blob], filename);
-  return importFile(file);
+  return importFile(file, mapping);
+}
+
+export async function previewFromBuffer(base64: string, filename: string): Promise<PreviewResult> {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  const blob = new Blob([bytes]);
+  const file = new File([blob], filename);
+  return previewFile(file);
 }

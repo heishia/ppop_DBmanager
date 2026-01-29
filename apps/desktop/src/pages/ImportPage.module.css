@@ -1,5 +1,5 @@
 .page {
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .page h1 {
@@ -13,6 +13,65 @@
   margin-bottom: 24px;
 }
 
+/* Step Indicator */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  padding: 0 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.step.active {
+  opacity: 1;
+}
+
+.step.done {
+  opacity: 0.7;
+}
+
+.step.done .stepNumber {
+  background: var(--success);
+  color: white;
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.step.active .stepNumber {
+  background: var(--primary);
+  color: white;
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stepLine {
+  width: 60px;
+  height: 2px;
+  background: var(--border);
+  margin: 0 12px;
+}
+
+/* Upload Card */
 .uploadCard {
   margin-bottom: 24px;
 }
@@ -48,9 +107,153 @@
 .uploadArea p {
   color: var(--text-muted);
   font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.aiNote {
+  color: var(--primary) !important;
+  font-weight: 500;
+  margin-bottom: 16px !important;
+}
+
+/* Loading Card */
+.loadingCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  margin-bottom: 24px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 16px;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Preview Section */
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Mapping Card */
+.mappingCard {
+  margin-bottom: 0;
+}
+
+.mappingCard h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.fileInfo {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.fileInfo strong {
+  color: var(--text);
+}
+
+.mappingGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mappingItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.mappingLabel {
+  width: 140px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.mappingArrow {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.mappingSource {
+  flex: 1;
+  padding: 6px 12px;
+  background: white;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.mappingError {
+  padding: 16px;
+  background: #fef2f2;
+  border-radius: 8px;
+  color: var(--danger);
+}
+
+/* Preview Table Card */
+.previewCard h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Original Columns Card */
+.originalCard h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+}
+
+.columnList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.columnTag {
+  padding: 4px 10px;
+  background: var(--bg);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Result & Error Cards */
 .resultCard,
 .errorCard,
 .templateCard {
@@ -110,6 +313,7 @@
   background: #fef2f2;
   border-radius: 8px;
   padding: 16px;
+  margin-bottom: 16px;
 }
 
 .errors h4 {
