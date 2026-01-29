@@ -34,7 +34,7 @@ function CustomerList() {
   }, [page]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+    if (!confirm('이 고객을 삭제하시겠습니까?')) return;
     try {
       await deleteCustomer(id);
       loadCustomers();
@@ -62,26 +62,26 @@ function CustomerList() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1>Customers</h1>
+        <h1>고객 목록</h1>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          Add Customer
+          고객 추가
         </button>
       </div>
 
       {loading ? (
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.loading}>불러오는 중...</div>
       ) : (
         <>
           <div className="card">
             <table className="table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Contacts</th>
-                  <th>Last Contact</th>
-                  <th>Actions</th>
+                  <th>이름</th>
+                  <th>이메일</th>
+                  <th>전화번호</th>
+                  <th>컨택 횟수</th>
+                  <th>최근 컨택</th>
+                  <th>작업</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,7 +107,7 @@ function CustomerList() {
                         className="btn btn-outline"
                         onClick={() => handleDelete(customer.id)}
                       >
-                        Delete
+                        삭제
                       </button>
                     </td>
                   </tr>
@@ -122,17 +122,17 @@ function CustomerList() {
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
-              Previous
+              이전
             </button>
             <span>
-              Page {page} of {totalPages}
+              {page} / {totalPages} 페이지
             </span>
             <button
               className="btn btn-outline"
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
             >
-              Next
+              다음
             </button>
           </div>
         </>
@@ -141,10 +141,10 @@ function CustomerList() {
       {showModal && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h2>Add Customer</h2>
+            <h2>고객 추가</h2>
             <form onSubmit={handleCreate}>
               <div className={styles.formGroup}>
-                <label>Name</label>
+                <label>이름</label>
                 <input
                   className="input"
                   value={formData.name}
@@ -153,7 +153,7 @@ function CustomerList() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Email</label>
+                <label>이메일</label>
                 <input
                   className="input"
                   type="email"
@@ -163,7 +163,7 @@ function CustomerList() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Phone</label>
+                <label>전화번호</label>
                 <input
                   className="input"
                   value={formData.phone}
@@ -173,10 +173,10 @@ function CustomerList() {
               </div>
               <div className={styles.formActions}>
                 <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>
-                  Cancel
+                  취소
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Create
+                  추가
                 </button>
               </div>
             </form>

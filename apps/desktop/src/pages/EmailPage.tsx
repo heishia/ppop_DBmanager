@@ -53,7 +53,7 @@ function EmailPage() {
 
   const handleSend = async () => {
     if (selectedIds.size === 0 || !subject || !body) {
-      alert('Please select recipients and fill in subject and body');
+      alert('수신자를 선택하고 제목과 본문을 입력해주세요');
       return;
     }
 
@@ -72,34 +72,34 @@ function EmailPage() {
       setBody('');
     } catch (error) {
       console.error('Failed to send emails:', error);
-      alert('Failed to send emails');
+      alert('이메일 발송에 실패했습니다');
     } finally {
       setSending(false);
     }
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return <div className={styles.loading}>불러오는 중...</div>;
   }
 
   return (
     <div className={styles.page}>
-      <h1>Send Email</h1>
+      <h1>이메일 발송</h1>
 
       {emailConfigured === false && (
         <div className={`card ${styles.warningCard}`}>
-          <h3>Email Not Configured</h3>
-          <p>Please configure SMTP settings in your environment variables.</p>
+          <h3>이메일 설정 필요</h3>
+          <p>환경 변수에 SMTP 설정을 입력해주세요.</p>
         </div>
       )}
 
       {result && (
         <div className={`card ${styles.resultCard}`}>
-          <h3>Emails Sent</h3>
+          <h3>발송 완료</h3>
           <p>
-            <span className={styles.success}>{result.success} sent</span>
+            <span className={styles.success}>{result.success}건 성공</span>
             {result.failed > 0 && (
-              <span className={styles.failed}>, {result.failed} failed</span>
+              <span className={styles.failed}>, {result.failed}건 실패</span>
             )}
           </p>
         </div>
@@ -108,9 +108,9 @@ function EmailPage() {
       <div className={styles.content}>
         <div className={`card ${styles.recipientsCard}`}>
           <div className={styles.cardHeader}>
-            <h3>Recipients</h3>
+            <h3>수신자</h3>
             <button className="btn btn-outline" onClick={selectAll}>
-              {selectedIds.size === customers.length ? 'Deselect All' : 'Select All'}
+              {selectedIds.size === customers.length ? '선택 해제' : '전체 선택'}
             </button>
           </div>
           <div className={styles.recipientList}>
@@ -127,28 +127,28 @@ function EmailPage() {
             ))}
           </div>
           <div className={styles.selectedCount}>
-            {selectedIds.size} recipient(s) selected
+            {selectedIds.size}명 선택됨
           </div>
         </div>
 
         <div className={`card ${styles.composeCard}`}>
-          <h3>Compose Email</h3>
+          <h3>이메일 작성</h3>
           <div className={styles.formGroup}>
-            <label>Subject</label>
+            <label>제목</label>
             <input
               className="input"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="Email subject"
+              placeholder="이메일 제목"
             />
           </div>
           <div className={styles.formGroup}>
-            <label>Body (HTML supported)</label>
+            <label>본문 (HTML 지원)</label>
             <textarea
               className={`input ${styles.textarea}`}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Email body..."
+              placeholder="이메일 본문을 입력하세요..."
               rows={10}
             />
           </div>
@@ -157,7 +157,7 @@ function EmailPage() {
             onClick={handleSend}
             disabled={sending || selectedIds.size === 0 || !subject || !body}
           >
-            {sending ? 'Sending...' : `Send to ${selectedIds.size} recipient(s)`}
+            {sending ? '발송 중...' : `${selectedIds.size}명에게 발송`}
           </button>
         </div>
       </div>

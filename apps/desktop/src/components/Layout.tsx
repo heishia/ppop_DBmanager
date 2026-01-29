@@ -10,9 +10,9 @@ function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Customers' },
-    { path: '/import', label: 'Import' },
-    { path: '/email', label: 'Email' },
+    { path: '/', label: '고객 목록' },
+    { path: '/import', label: '가져오기' },
+    { path: '/email', label: '이메일' },
   ];
 
   return (

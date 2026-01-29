@@ -9,6 +9,9 @@
     "clean": "rimraf dist",
     "dev": "tsc --watch"
   },
+  "dependencies": {
+    "@ppop/config": "workspace:*"
+  },
   "devDependencies": {
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"

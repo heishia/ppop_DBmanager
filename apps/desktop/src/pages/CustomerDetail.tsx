@@ -66,26 +66,26 @@ function CustomerDetail() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return <div className={styles.loading}>불러오는 중...</div>;
   }
 
   if (!customer) {
-    return <div className={styles.error}>Customer not found</div>;
+    return <div className={styles.error}>고객을 찾을 수 없습니다</div>;
   }
 
   return (
     <div className={styles.page}>
       <button className="btn btn-outline" onClick={() => navigate('/')}>
-        Back to List
+        목록으로
       </button>
 
       <div className={styles.content}>
         <div className={`card ${styles.infoCard}`}>
           <div className={styles.cardHeader}>
-            <h2>Customer Info</h2>
+            <h2>고객 정보</h2>
             {!editing && (
               <button className="btn btn-outline" onClick={() => setEditing(true)}>
-                Edit
+                수정
               </button>
             )}
           </div>
@@ -93,7 +93,7 @@ function CustomerDetail() {
           {editing ? (
             <form onSubmit={handleUpdate}>
               <div className={styles.formGroup}>
-                <label>Name</label>
+                <label>이름</label>
                 <input
                   className="input"
                   value={formData.name || ''}
@@ -101,7 +101,7 @@ function CustomerDetail() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Email</label>
+                <label>이메일</label>
                 <input
                   className="input"
                   type="email"
@@ -110,7 +110,7 @@ function CustomerDetail() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Phone</label>
+                <label>전화번호</label>
                 <input
                   className="input"
                   value={formData.phone || ''}
@@ -119,29 +119,29 @@ function CustomerDetail() {
               </div>
               <div className={styles.formActions}>
                 <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
-                  Cancel
+                  취소
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Save
+                  저장
                 </button>
               </div>
             </form>
           ) : (
             <div className={styles.info}>
               <div className={styles.infoRow}>
-                <span className={styles.label}>Name</span>
+                <span className={styles.label}>이름</span>
                 <span>{customer.name}</span>
               </div>
               <div className={styles.infoRow}>
-                <span className={styles.label}>Email</span>
+                <span className={styles.label}>이메일</span>
                 <span>{customer.email}</span>
               </div>
               <div className={styles.infoRow}>
-                <span className={styles.label}>Phone</span>
+                <span className={styles.label}>전화번호</span>
                 <span>{customer.phone}</span>
               </div>
               <div className={styles.infoRow}>
-                <span className={styles.label}>Total Contacts</span>
+                <span className={styles.label}>총 컨택 횟수</span>
                 <span className="badge badge-success">{customer.totalContacts}</span>
               </div>
             </div>
@@ -150,19 +150,19 @@ function CustomerDetail() {
 
         <div className={`card ${styles.contactCard}`}>
           <div className={styles.cardHeader}>
-            <h2>Contact History</h2>
+            <h2>컨택 이력</h2>
             <div className={styles.contactActions}>
               <button className="btn btn-outline" onClick={() => handleAddContact('email')}>
-                Log Email
+                이메일 기록
               </button>
               <button className="btn btn-outline" onClick={() => handleAddContact('phone')}>
-                Log Call
+                통화 기록
               </button>
             </div>
           </div>
 
           {contacts.length === 0 ? (
-            <div className={styles.empty}>No contact history</div>
+            <div className={styles.empty}>컨택 이력이 없습니다</div>
           ) : (
             <ul className={styles.contactList}>
               {contacts.map((contact) => (

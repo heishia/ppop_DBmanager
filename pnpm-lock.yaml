@@ -199,6 +199,10 @@ importers:
         version: 5.9.3
 
   packages/utils:
+    dependencies:
+      '@ppop/config':
+        specifier: workspace:*
+        version: link:../config
     devDependencies:
       rimraf:
         specifier: ^5.0.5
