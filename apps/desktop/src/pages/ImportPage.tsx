@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { importFromBuffer, previewFromBuffer, type PreviewResult, type ColumnMapping } from '../lib/api';
+import { importFromBuffer, previewFromBuffer, type PreviewResult } from '../lib/api';
 import type { ImportResult } from '@ppop/types';
 import styles from './ImportPage.module.css';
 
 // 귀여운 아이콘들
-import { PiDogFill, PiSparkle, PiMagicWandFill, PiCheckCircleFill, PiFileCsvFill } from 'react-icons/pi';
+import { PiDogFill, PiMagicWandFill, PiCheckCircleFill } from 'react-icons/pi';
 import { HiSparkles } from 'react-icons/hi2';
 import { RiRobot2Fill } from 'react-icons/ri';
 

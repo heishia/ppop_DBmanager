@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router, type Router as IRouter } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error.middleware';
 import * as groupService from '../services/group.service';
 import { AppError } from '@ppop/utils';
 
-export const groupRouter = Router();
+export const groupRouter: IRouter = Router();
 
 const createGroupSchema = z.object({
   name: z.string().min(1).max(100),

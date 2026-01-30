@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, type Router as IRouter } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error.middleware';
 import { sendEmail, verifyEmailConfig } from '../lib/email';
 import * as emailService from '../services/email.service';
 import { AppError } from '@ppop/utils';
 
-export const emailRouter = Router();
+export const emailRouter: IRouter = Router();
 
 const sendEmailSchema = z.object({
   to: z.string().email(),

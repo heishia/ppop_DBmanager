@@ -26,7 +26,7 @@ export interface ContactHistory {
   customerId: string;
   contactedAt: Date;
   type: ContactType;
-  note?: string;
+  note: string | null;
 }
 
 export type ContactType = 'email' | 'phone' | 'other';

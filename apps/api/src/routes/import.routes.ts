@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Router as IRouter } from 'express';
 import multer from 'multer';
 import { asyncHandler } from '../middleware/error.middleware';
 import * as importService from '../services/import.service';
@@ -6,7 +6,7 @@ import { IMPORT_CONFIG } from '@ppop/config';
 import { AppError } from '@ppop/utils';
 import path from 'path';
 
-export const importRouter = Router();
+export const importRouter: IRouter = Router();
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -15,7 +15,7 @@ const upload = multer({
   },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (IMPORT_CONFIG.SUPPORTED_EXTENSIONS.includes(ext)) {
+    if ((IMPORT_CONFIG.SUPPORTED_EXTENSIONS as readonly string[]).includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Unsupported file format'));

@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router, type Router as IRouter } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error.middleware';
 import * as customerService from '../services/customer.service';
 import { AppError } from '@ppop/utils';
 
-export const customerRouter = Router();
+export const customerRouter: IRouter = Router();
 
 const createCustomerSchema = z.object({
   name: z.string().min(1),

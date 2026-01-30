@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router, type Router as IRouter } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error.middleware';
 import { getSmtpSettings, updateSmtpSettings, isSmtpConfigured } from '../services/settings.service';
 import { AppError } from '@ppop/utils';
 
-export const settingsRouter = Router();
+export const settingsRouter: IRouter = Router();
 
 const smtpSettingsSchema = z.object({
   host: z.string().min(1, 'SMTP 호스트를 입력해주세요'),
