@@ -60,8 +60,10 @@ COPY packages/config/package.json ./packages/config/
 COPY packages/utils/package.json ./packages/utils/
 COPY apps/api/package.json ./apps/api/
 
-# Install ALL dependencies (not just prod, need prisma CLI)
+# Install ALL dependencies (force dev deps even in production)
+ENV NODE_ENV=development
 RUN pnpm install --frozen-lockfile
+ENV NODE_ENV=production
 
 # Copy built dist files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
