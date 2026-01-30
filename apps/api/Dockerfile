@@ -64,10 +64,14 @@ COPY --from=builder /app/packages/types/dist ./node_modules/@ppop/types/dist
 COPY --from=builder /app/packages/config/dist ./node_modules/@ppop/config/dist
 COPY --from=builder /app/packages/utils/dist ./node_modules/@ppop/utils/dist
 
+# Create startup script that runs migrations then starts server
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node dist/index.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
 USER apiuser
 
 EXPOSE 3001
 
-ENV PORT=3001
-
-CMD ["node", "dist/index.js"]
+CMD ["/app/start.sh"]

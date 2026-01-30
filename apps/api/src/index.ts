@@ -10,7 +10,8 @@ import { errorHandler } from './middleware/error.middleware';
 import { API_CONFIG } from '@ppop/config';
 
 const app = express();
-const port = process.env.API_PORT || API_CONFIG.DEFAULT_PORT;
+// Railway uses PORT, local dev uses API_PORT
+const port = process.env.PORT || process.env.API_PORT || API_CONFIG.DEFAULT_PORT;
 
 // Middleware
 app.use(cors());
