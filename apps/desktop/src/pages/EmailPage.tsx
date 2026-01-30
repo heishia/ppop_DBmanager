@@ -173,10 +173,13 @@ function EmailPage() {
     setResult(null);
 
     try {
+      // 줄바꿈을 <br> 태그로 변환 (HTML 이메일에서 줄바꿈 적용)
+      const htmlBody = body.replace(/\n/g, '<br>');
+      
       const sendResult = await sendBulkEmail({
         customerIds: Array.from(selectedIds),
         subject,
-        body,
+        body: htmlBody,
       });
       setResult({ success: sendResult.success, failed: sendResult.failed });
       setSelectedIds(new Set());
