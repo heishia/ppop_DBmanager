@@ -55,8 +55,8 @@ export async function deleteCustomer(id: string): Promise<void> {
   await api.delete(`/customers/${id}`);
 }
 
-export async function searchCustomers(query: string): Promise<Customer[]> {
-  const res = await api.get<ApiResponse<Customer[]>>(`/customers/search?q=${encodeURIComponent(query)}`);
+export async function searchCustomers(query: string): Promise<CustomerWithContacts[]> {
+  const res = await api.get<ApiResponse<CustomerWithContacts[]>>(`/customers/search?q=${encodeURIComponent(query)}`);
   return res.data.data!;
 }
 

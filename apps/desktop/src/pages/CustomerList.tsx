@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getCustomers, deleteCustomer, createCustomer, searchCustomers } from '../lib/api';
-import type { CustomerWithContacts, CreateCustomerDto, Customer } from '@ppop/types';
+import type { CustomerWithContacts, CreateCustomerDto } from '@ppop/types';
 import styles from './CustomerList.module.css';
 
 function CustomerList() {
   const [customers, setCustomers] = useState<CustomerWithContacts[]>([]);
-  const [searchResults, setSearchResults] = useState<Customer[]>([]);
+  const [searchResults, setSearchResults] = useState<CustomerWithContacts[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -142,15 +142,15 @@ function CustomerList() {
                   <th>이름</th>
                   <th>이메일</th>
                   <th>전화번호</th>
-                  {!searchQuery.trim() && <th>컨택 횟수</th>}
-                  {!searchQuery.trim() && <th>최근 컨택</th>}
+                  <th>컨택 횟수</th>
+                  <th>최근 컨택</th>
                   <th>작업</th>
                 </tr>
               </thead>
               <tbody>
                 {displayCustomers.length === 0 ? (
                   <tr>
-                    <td colSpan={searchQuery.trim() ? 4 : 6} className={styles.noResults}>
+                    <td colSpan={6} className={styles.noResults}>
                       {searchQuery.trim() ? '검색 결과가 없습니다' : '고객이 없습니다'}
                     </td>
                   </tr>
@@ -164,20 +164,16 @@ function CustomerList() {
                       </td>
                       <td>{customer.email}</td>
                       <td>{customer.phone}</td>
-                      {!searchQuery.trim() && (
-                        <td>
-                          <span className="badge badge-success">
-                            {(customer as CustomerWithContacts).totalContacts}
-                          </span>
-                        </td>
-                      )}
-                      {!searchQuery.trim() && (
-                        <td>
-                          {(customer as CustomerWithContacts).recentContacts?.length > 0
-                            ? formatDate((customer as CustomerWithContacts).recentContacts[0].contactedAt)
-                            : '-'}
-                        </td>
-                      )}
+                      <td>
+                        <span className="badge badge-success">
+                          {customer.totalContacts}
+                        </span>
+                      </td>
+                      <td>
+                        {customer.recentContacts?.length > 0
+                          ? formatDate(customer.recentContacts[0].contactedAt)
+                          : '-'}
+                      </td>
                       <td>
                         <button
                           className="btn btn-outline"

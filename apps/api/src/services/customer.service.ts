@@ -124,8 +124,8 @@ export async function deleteCustomer(id: string): Promise<void> {
   await prisma.customer.delete({ where: { id } });
 }
 
-export async function searchCustomers(query: string): Promise<Customer[]> {
-  return prisma.customer.findMany({
+export async function searchCustomers(query: string): Promise<CustomerWithContacts[]> {
+  const customers = await prisma.customer.findMany({
     where: {
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
@@ -134,5 +134,25 @@ export async function searchCustomers(query: string): Promise<Customer[]> {
       ],
     },
     take: 20,
+    include: {
+      contacts: {
+        orderBy: { contactedAt: 'desc' },
+        take: 3,
+      },
+      _count: {
+        select: { contacts: true },
+      },
+    },
   });
+
+  return customers.map((c) => ({
+    id: c.id,
+    name: c.name,
+    email: c.email,
+    phone: c.phone,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    totalContacts: c._count.contacts,
+    recentContacts: c.contacts,
+  }));
 }
