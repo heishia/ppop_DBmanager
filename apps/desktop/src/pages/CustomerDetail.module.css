@@ -104,3 +104,35 @@
   font-size: 14px;
   color: var(--text);
 }
+
+.errorCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 24px;
+}
+
+.errorIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.errorContent {
+  flex: 1;
+}
+
+.errorContent strong {
+  display: block;
+  color: #ef4444;
+  margin-bottom: 4px;
+}
+
+.errorContent p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}

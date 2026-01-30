@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { importFromBuffer, previewFromBuffer, type PreviewResult } from '../lib/api';
+import { importFromBuffer, previewFromBuffer, getErrorMessage, type PreviewResult } from '../lib/api';
 import type { ImportResult } from '@ppop/types';
 import styles from './ImportPage.module.css';
 
@@ -49,7 +49,8 @@ function ImportPage() {
       setPreview(previewResult);
       setStep('preview');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '파일 분석 실패');
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,8 @@ function ImportPage() {
       setResult(importResult);
       setStep('result');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '가져오기 실패');
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

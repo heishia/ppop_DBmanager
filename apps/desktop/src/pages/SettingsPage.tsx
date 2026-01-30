@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSmtpSettings, updateSmtpSettings, testSmtpConnection } from '../lib/api';
+import { getSmtpSettings, updateSmtpSettings, testSmtpConnection, getErrorMessage } from '../lib/api';
 import styles from './SettingsPage.module.css';
 
 interface SmtpFormData {
@@ -43,8 +43,10 @@ function SettingsPage() {
       });
       // 비밀번호가 마스킹되어 있는지 확인
       setIsPasswordMasked(smtp.pass === '********');
-    } catch (error) {
-      console.error('Failed to load settings:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setTestResult({ valid: false, message: `설정 로드 실패: ${errorMsg}` });
+      console.error('Failed to load settings:', err);
     } finally {
       setLoading(false);
     }
@@ -87,9 +89,10 @@ function SettingsPage() {
     try {
       const result = await testSmtpConnection(formData);
       setTestResult(result);
-    } catch (error) {
-      console.error('Test failed:', error);
-      setTestResult({ valid: false, message: '테스트 요청 실패' });
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setTestResult({ valid: false, message: `테스트 실패: ${errorMsg}` });
+      console.error('Test failed:', err);
     } finally {
       setTesting(false);
     }
@@ -115,9 +118,10 @@ function SettingsPage() {
       setSuccessMessage('설정이 저장되었습니다');
       setIsPasswordMasked(true);
       setFormData((prev) => ({ ...prev, pass: '********' }));
-    } catch (error) {
-      console.error('Save failed:', error);
-      alert('설정 저장에 실패했습니다');
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`설정 저장 실패: ${errorMsg}`);
+      console.error('Save failed:', err);
     } finally {
       setSaving(false);
     }

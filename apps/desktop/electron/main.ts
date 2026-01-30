@@ -24,6 +24,13 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
+  // F12로 DevTools 토글 (프로덕션에서도 사용 가능)
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12') {
+      mainWindow?.webContents.toggleDevTools();
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

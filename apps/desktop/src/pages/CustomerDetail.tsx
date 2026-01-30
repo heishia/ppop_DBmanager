@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getCustomer, updateCustomer, getContacts, createContact } from '../lib/api';
+import { getCustomer, updateCustomer, getContacts, createContact, getErrorMessage } from '../lib/api';
 import type { CustomerWithContacts, ContactHistory, UpdateCustomerDto, ContactType } from '@ppop/types';
 import styles from './CustomerDetail.module.css';
 
@@ -10,12 +10,14 @@ function CustomerDetail() {
   const [customer, setCustomer] = useState<CustomerWithContacts | null>(null);
   const [contacts, setContacts] = useState<ContactHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<UpdateCustomerDto>({});
 
   const loadData = async () => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     try {
       const [customerData, contactsData] = await Promise.all([
         getCustomer(id),
@@ -28,8 +30,10 @@ function CustomerDetail() {
         email: customerData.email,
         phone: customerData.phone,
       });
-    } catch (error) {
-      console.error('Failed to load customer:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      console.error('Failed to load customer:', err);
     } finally {
       setLoading(false);
     }
@@ -46,8 +50,10 @@ function CustomerDetail() {
       await updateCustomer(id, formData);
       setEditing(false);
       loadData();
-    } catch (error) {
-      console.error('Failed to update customer:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`고객 정보 수정 실패: ${errorMsg}`);
+      console.error('Failed to update customer:', err);
     }
   };
 
@@ -56,8 +62,10 @@ function CustomerDetail() {
     try {
       await createContact({ customerId: id, type });
       loadData();
-    } catch (error) {
-      console.error('Failed to add contact:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`컨택 기록 추가 실패: ${errorMsg}`);
+      console.error('Failed to add contact:', err);
     }
   };
 
@@ -67,6 +75,26 @@ function CustomerDetail() {
 
   if (loading) {
     return <div className={styles.loading}>불러오는 중...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <button className="btn btn-outline" onClick={() => navigate('/')}>
+          목록으로
+        </button>
+        <div className={styles.errorCard}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <div className={styles.errorContent}>
+            <strong>오류 발생</strong>
+            <p>{error}</p>
+          </div>
+          <button className="btn btn-outline" onClick={loadData}>
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!customer) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getEmailHistory, type PaginatedEmailHistory } from '../lib/api';
+import { getEmailHistory, getErrorMessage, type PaginatedEmailHistory } from '../lib/api';
 import styles from './HistoryPage.module.css';
 
 // 체크 아이콘
@@ -28,7 +28,8 @@ function HistoryPage() {
       const result = await getEmailHistory(page, pageSize);
       setData(result);
     } catch (err) {
-      setError('히스토리를 불러오는데 실패했습니다.');
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
       console.error(err);
     } finally {
       setLoading(false);

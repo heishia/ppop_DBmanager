@@ -9,6 +9,7 @@ import {
   getGroupCustomerIds,
   addGroupMembers,
   deleteGroup,
+  getErrorMessage,
 } from '../lib/api';
 import type { CustomerWithContacts, CustomerGroupWithCount } from '@ppop/types';
 import styles from './EmailPage.module.css';
@@ -23,6 +24,7 @@ function EmailPage() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [emailConfigured, setEmailConfigured] = useState<boolean | null>(null);
   const [result, setResult] = useState<{ success: number; failed: number } | null>(null);
@@ -44,6 +46,7 @@ function EmailPage() {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
       // 먼저 총 고객 수를 가져온 후 전체 고객 로드
       const [initialResult, configured, groupsResult] = await Promise.all([
@@ -57,8 +60,10 @@ function EmailPage() {
       setCustomers(allCustomersResult.items);
       setEmailConfigured(configured);
       setGroups(groupsResult);
-    } catch (error) {
-      console.error('Failed to load data:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      console.error('Failed to load data:', err);
     } finally {
       setLoading(false);
     }
@@ -102,8 +107,10 @@ function EmailPage() {
       try {
         const customerIds = await getGroupCustomerIds(groupId);
         setSelectedIds(new Set(customerIds));
-      } catch (error) {
-        console.error('Failed to load group members:', error);
+      } catch (err) {
+        const errorMsg = getErrorMessage(err);
+        alert(`그룹 멤버 로딩 실패: ${errorMsg}`);
+        console.error('Failed to load group members:', err);
       }
     } else {
       setSelectedIds(new Set());
@@ -120,9 +127,10 @@ function EmailPage() {
       setNewGroupName('');
       setShowCreateGroup(false);
       setSelectedGroupId(newGroup.id);
-    } catch (error) {
-      console.error('Failed to create group:', error);
-      alert('그룹 생성에 실패했습니다');
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`그룹 생성 실패: ${errorMsg}`);
+      console.error('Failed to create group:', err);
     } finally {
       setCreatingGroup(false);
     }
@@ -140,9 +148,10 @@ function EmailPage() {
       // Reload groups to update member count
       const updatedGroups = await getGroups();
       setGroups(updatedGroups);
-    } catch (error) {
-      console.error('Failed to add members:', error);
-      alert('멤버 추가에 실패했습니다');
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`멤버 추가 실패: ${errorMsg}`);
+      console.error('Failed to add members:', err);
     }
   };
 
@@ -157,9 +166,10 @@ function EmailPage() {
       setGroups(groups.filter(g => g.id !== selectedGroupId));
       setSelectedGroupId('');
       setSelectedIds(new Set());
-    } catch (error) {
-      console.error('Failed to delete group:', error);
-      alert('그룹 삭제에 실패했습니다');
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`그룹 삭제 실패: ${errorMsg}`);
+      console.error('Failed to delete group:', err);
     }
   };
 
@@ -186,9 +196,10 @@ function EmailPage() {
       setSubject('');
       setBody('');
       setSelectedGroupId('');
-    } catch (error) {
-      console.error('Failed to send emails:', error);
-      alert('이메일 발송에 실패했습니다');
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`이메일 발송 실패: ${errorMsg}`);
+      console.error('Failed to send emails:', err);
     } finally {
       setSending(false);
     }
@@ -213,6 +224,19 @@ function EmailPage() {
   return (
     <div className={styles.page}>
       <h1>이메일 발송</h1>
+
+      {error && (
+        <div className={styles.errorCard}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <div className={styles.errorContent}>
+            <strong>오류 발생</strong>
+            <p>{error}</p>
+          </div>
+          <button className="btn btn-outline" onClick={loadData}>
+            다시 시도
+          </button>
+        </div>
+      )}
 
       {emailConfigured === false && (
         <div className={`card ${styles.warningCard}`}>

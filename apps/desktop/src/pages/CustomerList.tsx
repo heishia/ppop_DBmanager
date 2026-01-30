@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getCustomers, deleteCustomer, createCustomer, searchCustomers } from '../lib/api';
+import { getCustomers, deleteCustomer, createCustomer, searchCustomers, getErrorMessage } from '../lib/api';
 import type { CustomerWithContacts, CreateCustomerDto } from '@ppop/types';
 import styles from './CustomerList.module.css';
 
@@ -8,6 +8,7 @@ function CustomerList() {
   const [customers, setCustomers] = useState<CustomerWithContacts[]>([]);
   const [searchResults, setSearchResults] = useState<CustomerWithContacts[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -22,13 +23,16 @@ function CustomerList() {
 
   const loadCustomers = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await getCustomers(page);
       setCustomers(result.items);
       setTotalPages(result.totalPages);
       setTotalCount(result.total);
-    } catch (error) {
-      console.error('Failed to load customers:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      console.error('Failed to load customers:', err);
     } finally {
       setLoading(false);
     }
@@ -66,8 +70,10 @@ function CustomerList() {
     try {
       await deleteCustomer(id);
       loadCustomers();
-    } catch (error) {
-      console.error('Failed to delete customer:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`삭제 실패: ${errorMsg}`);
+      console.error('Failed to delete customer:', err);
     }
   };
 
@@ -78,8 +84,10 @@ function CustomerList() {
       setShowModal(false);
       setFormData({ name: '', email: '', phone: '' });
       loadCustomers();
-    } catch (error) {
-      console.error('Failed to create customer:', error);
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      alert(`고객 추가 실패: ${errorMsg}`);
+      console.error('Failed to create customer:', err);
     }
   };
 
@@ -128,6 +136,19 @@ function CustomerList() {
           ) : (
             <span>{searchResults.length}개의 검색 결과</span>
           )}
+        </div>
+      )}
+
+      {error && (
+        <div className={styles.errorCard}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <div className={styles.errorContent}>
+            <strong>오류 발생</strong>
+            <p>{error}</p>
+          </div>
+          <button className="btn btn-outline" onClick={loadCustomers}>
+            다시 시도
+          </button>
         </div>
       )}
 
