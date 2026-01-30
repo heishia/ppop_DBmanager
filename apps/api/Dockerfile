@@ -53,12 +53,15 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 apiuser
+# Copy package files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/config/package.json ./packages/config/
+COPY packages/utils/package.json ./packages/utils/
+COPY apps/api/package.json ./apps/api/
 
-# Copy entire node_modules from builder (includes generated Prisma client)
-COPY --from=builder /app/node_modules ./node_modules
+# Install ALL dependencies (not just prod, need prisma CLI)
+RUN pnpm install --frozen-lockfile
 
 # Copy built dist files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
@@ -67,14 +70,17 @@ COPY --from=builder /app/packages/types/dist ./packages/types/dist
 COPY --from=builder /app/packages/config/dist ./packages/config/dist
 COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
 
-# Copy package.json for prisma to find schema
-COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
-
+# Generate Prisma client
 WORKDIR /app/apps/api
+RUN pnpm exec prisma generate
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 apiuser
 
 USER apiuser
 
 EXPOSE 3001
 
 # Run migrations then start server
-CMD ["sh", "-c", "npx prisma@5.22.0 migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/index.js"]
