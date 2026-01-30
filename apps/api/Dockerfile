@@ -56,15 +56,8 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 apiuser
 
-# Copy package files for production install
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
-COPY packages/types/package.json ./packages/types/
-COPY packages/config/package.json ./packages/config/
-COPY packages/utils/package.json ./packages/utils/
-COPY apps/api/package.json ./apps/api/
-
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+# Copy entire node_modules from builder (includes generated Prisma client)
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy built dist files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
@@ -73,13 +66,14 @@ COPY --from=builder /app/packages/types/dist ./packages/types/dist
 COPY --from=builder /app/packages/config/dist ./packages/config/dist
 COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
 
-# Generate Prisma client in runner
+# Copy package.json for prisma to find schema
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+
 WORKDIR /app/apps/api
-RUN npx prisma generate
 
 USER apiuser
 
 EXPOSE 3001
 
 # Run migrations then start server
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "npx prisma@5.22.0 migrate deploy && node dist/index.js"]
