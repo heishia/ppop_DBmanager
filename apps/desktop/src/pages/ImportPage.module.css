@@ -99,6 +99,32 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+.dogStep {
+  background: linear-gradient(135deg, #f472b6 0%, #fb923c 100%) !important;
+  color: white !important;
+  width: 36px;
+  height: 36px;
+}
+
+.dogStep svg {
+  width: 22px;
+  height: 22px;
+}
+
+.step.active .dogStep {
+  box-shadow: 0 0 20px rgba(244, 114, 182, 0.5);
+  animation: dogBounce 1s ease-in-out infinite;
+}
+
+.step.done .dogStep {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
+}
+
+@keyframes dogBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
   50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.6); }

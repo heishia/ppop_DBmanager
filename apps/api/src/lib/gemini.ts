@@ -1,16 +1,52 @@
 import { VertexAI } from '@google-cloud/vertexai';
+import { GoogleAuth } from 'google-auth-library';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 
 // GCP 설정
 const PROJECT_ID = process.env.GCP_PROJECT_ID || '';
 const LOCATION = process.env.GCP_LOCATION || 'asia-northeast3'; // 서울 리전
 
 let vertexAI: VertexAI | null = null;
+let credentialsInitialized = false;
+
+/**
+ * 프로덕션 환경에서 JSON 문자열로 전달된 서비스 계정 인증 처리
+ */
+function initializeCredentials(): void {
+  if (credentialsInitialized) return;
+
+  const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+  if (credentialsJson) {
+    try {
+      // JSON 문자열을 임시 파일로 저장
+      const tempDir = os.tmpdir();
+      const credentialsPath = path.join(tempDir, 'gcp-credentials.json');
+      fs.writeFileSync(credentialsPath, credentialsJson, 'utf8');
+
+      // GOOGLE_APPLICATION_CREDENTIALS 환경변수 설정
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
+
+      console.log('GCP credentials initialized from JSON string');
+    } catch (error) {
+      console.error('Failed to initialize GCP credentials:', error);
+    }
+  }
+
+  credentialsInitialized = true;
+}
 
 function getVertexAI(): VertexAI {
   if (!vertexAI) {
     if (!PROJECT_ID) {
       throw new Error('GCP_PROJECT_ID is not configured');
     }
+
+    // 프로덕션 환경 인증 초기화
+    initializeCredentials();
+
     vertexAI = new VertexAI({
       project: PROJECT_ID,
       location: LOCATION,
@@ -42,7 +78,7 @@ export async function analyzeAndTransformData(
   try {
     const ai = getVertexAI();
     const model = ai.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
     });
 
     const prompt = `당신은 데이터 변환 전문가입니다. 

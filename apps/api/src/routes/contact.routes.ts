@@ -12,6 +12,17 @@ const createContactSchema = z.object({
   note: z.string().optional(),
 });
 
+// GET /api/contacts/email-history
+contactRouter.get(
+  '/email-history',
+  asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 20;
+    const history = await contactService.getEmailHistory(page, pageSize);
+    res.json({ success: true, data: history });
+  })
+);
+
 // GET /api/contacts/customer/:customerId
 contactRouter.get(
   '/customer/:customerId',

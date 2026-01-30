@@ -202,3 +202,56 @@ export async function getGroupCustomerIds(groupId: string): Promise<string[]> {
   const res = await api.get<ApiResponse<string[]>>(`/groups/${groupId}/customer-ids`);
   return res.data.data!;
 }
+
+// Settings API
+export interface SmtpSettings {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  from: string;
+  configured?: boolean;
+}
+
+export async function getSmtpSettings(): Promise<SmtpSettings> {
+  const res = await api.get<ApiResponse<SmtpSettings>>('/settings/smtp');
+  return res.data.data!;
+}
+
+export async function updateSmtpSettings(settings: SmtpSettings): Promise<SmtpSettings> {
+  const res = await api.put<ApiResponse<SmtpSettings>>('/settings/smtp', settings);
+  return res.data.data!;
+}
+
+export async function testSmtpConnection(settings: SmtpSettings): Promise<{ valid: boolean; message: string }> {
+  const res = await api.post<ApiResponse<{ valid: boolean; message: string }>>('/settings/smtp/test', settings);
+  return res.data.data!;
+}
+
+// Email History API
+export interface EmailHistoryItem {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  contactedAt: string;
+  note: string | null;
+}
+
+export interface PaginatedEmailHistory {
+  items: EmailHistoryItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function getEmailHistory(
+  page: number = 1,
+  pageSize: number = 20
+): Promise<PaginatedEmailHistory> {
+  const res = await api.get<ApiResponse<PaginatedEmailHistory>>(
+    `/contacts/email-history?page=${page}&pageSize=${pageSize}`
+  );
+  return res.data.data!;
+}

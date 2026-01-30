@@ -1,0 +1,180 @@
+.page {
+  max-width: 800px;
+}
+
+.page h1 {
+  margin-bottom: 24px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-muted);
+}
+
+.settingsCard {
+  margin-bottom: 24px;
+}
+
+.settingsCard h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.description {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.successMessage {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.testResult {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.testSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.testFail {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.formGroupSmall {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 120px;
+}
+
+.formGroup label,
+.formGroupSmall label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.passwordField {
+  display: flex;
+  gap: 8px;
+}
+
+.passwordField input {
+  flex: 1;
+}
+
+.togglePassword {
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 13px;
+}
+
+.togglePassword:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.infoCard {
+  background: var(--card);
+}
+
+.infoCard h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.helpSection {
+  margin-bottom: 16px;
+}
+
+.helpSection:last-child {
+  margin-bottom: 0;
+}
+
+.helpSection h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.helpSection ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.helpSection li {
+  padding: 4px 0;
+}
+
+.helpSection code {
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  color: var(--primary);
+}
+
+.helpSection a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.helpSection a:hover {
+  opacity: 0.8;
+}

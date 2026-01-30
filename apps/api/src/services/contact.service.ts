@@ -48,3 +48,61 @@ export async function getContactStats(customerId: string) {
 
   return { total, recent };
 }
+
+export interface EmailHistoryItem {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  contactedAt: Date;
+  note: string | null;
+}
+
+export interface PaginatedEmailHistory {
+  items: EmailHistoryItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function getEmailHistory(
+  page: number = 1,
+  pageSize: number = 20
+): Promise<PaginatedEmailHistory> {
+  const skip = (page - 1) * pageSize;
+
+  const [items, total] = await Promise.all([
+    prisma.contactHistory.findMany({
+      where: { type: 'email' },
+      orderBy: { contactedAt: 'desc' },
+      skip,
+      take: pageSize,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+    prisma.contactHistory.count({ where: { type: 'email' } }),
+  ]);
+
+  return {
+    items: items.map((item) => ({
+      id: item.id,
+      customerId: item.customer.id,
+      customerName: item.customer.name,
+      customerEmail: item.customer.email,
+      contactedAt: item.contactedAt,
+      note: item.note,
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}

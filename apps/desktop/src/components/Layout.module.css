@@ -13,25 +13,12 @@
 }
 
 .logo {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
   margin-bottom: 32px;
   padding: 0 12px;
-}
-
-.logoEn {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  letter-spacing: 1px;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--primary);
-}
-
-.logoKr {
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--text-muted);
+  letter-spacing: -0.5px;
 }
 
 .menu {
@@ -85,6 +72,27 @@
 @keyframes sparkle {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+.navBottom {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.settingsLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.settingsLink:hover {
+  color: var(--text);
+}
+
+.settingsLink.active {
+  color: var(--primary);
 }
 
 .main {

@@ -14,6 +14,62 @@
   font-weight: 600;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.totalCount {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 400;
+  background: var(--hover);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.searchBar {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.searchBar input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.clearBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.searchInfo {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.noResults {
+  text-align: center;
+  padding: 32px !important;
+  color: var(--text-muted);
+}
+
 .loading {
   text-align: center;
   padding: 48px;

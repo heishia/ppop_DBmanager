@@ -24,6 +24,16 @@
   margin-bottom: 8px;
 }
 
+.settingsLink {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.settingsLink:hover {
+  opacity: 0.8;
+}
+
 .resultCard {
   border-color: var(--success);
   margin-bottom: 24px;
@@ -217,4 +227,45 @@
 
 .saveToGroupBtn {
   margin-top: 12px;
+}
+
+/* Search Box */
+.searchBox {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.searchBox input {
+  width: 100%;
+  padding-right: 36px;
+}
+
+.clearSearch {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearSearch:hover {
+  background: var(--text-muted);
+  color: var(--bg);
+}
+
+.noResults {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
 }

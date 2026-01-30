@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   getCustomers,
   sendBulkEmail,
@@ -33,6 +34,9 @@ function EmailPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [creatingGroup, setCreatingGroup] = useState(false);
+  
+  // Search
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadData();
@@ -41,12 +45,16 @@ function EmailPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [customersResult, configured, groupsResult] = await Promise.all([
-        getCustomers(1, 100),
+      // 먼저 총 고객 수를 가져온 후 전체 고객 로드
+      const [initialResult, configured, groupsResult] = await Promise.all([
+        getCustomers(1, 1),
         verifyEmailConfig(),
         getGroups(),
       ]);
-      setCustomers(customersResult.items);
+      
+      // 총 고객 수만큼 한번에 가져오기
+      const allCustomersResult = await getCustomers(1, initialResult.total || 1000);
+      setCustomers(allCustomersResult.items);
       setEmailConfigured(configured);
       setGroups(groupsResult);
     } catch (error) {
@@ -66,11 +74,25 @@ function EmailPage() {
     setSelectedIds(newSelected);
   };
 
-  const selectAll = () => {
-    if (selectedIds.size === customers.length) {
-      setSelectedIds(new Set());
+  const selectAllFiltered = () => {
+    const filteredIds = customers.filter((customer) => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        customer.name.toLowerCase().includes(query) ||
+        customer.email?.toLowerCase().includes(query)
+      );
+    }).map(c => c.id);
+    
+    const allSelected = filteredIds.every(id => selectedIds.has(id));
+    if (allSelected) {
+      const newSelected = new Set(selectedIds);
+      filteredIds.forEach(id => newSelected.delete(id));
+      setSelectedIds(newSelected);
     } else {
-      setSelectedIds(new Set(customers.map((c) => c.id)));
+      const newSelected = new Set(selectedIds);
+      filteredIds.forEach(id => newSelected.add(id));
+      setSelectedIds(newSelected);
     }
   };
 
@@ -174,6 +196,16 @@ function EmailPage() {
   }
 
   const selectedGroup = groups.find(g => g.id === selectedGroupId);
+  
+  // Filter customers by search query
+  const filteredCustomers = customers.filter((customer) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      customer.name.toLowerCase().includes(query) ||
+      customer.email?.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className={styles.page}>
@@ -182,7 +214,12 @@ function EmailPage() {
       {emailConfigured === false && (
         <div className={`card ${styles.warningCard}`}>
           <h3>이메일 설정 필요</h3>
-          <p>환경 변수에 SMTP 설정을 입력해주세요.</p>
+          <p>
+            SMTP 설정이 필요합니다.{' '}
+            <Link to="/settings" className={styles.settingsLink}>
+              설정 페이지에서 SMTP를 설정해주세요 →
+            </Link>
+          </p>
         </div>
       )}
 
@@ -282,11 +319,31 @@ function EmailPage() {
             </div>
           )}
 
+          {/* Search Input */}
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              className="input"
+              placeholder="이름, 이메일로 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className={styles.clearSearch}
+                onClick={() => setSearchQuery('')}
+                title="검색 초기화"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           {/* Individual Selection Header */}
           {activeTab === 'individual' && (
             <div className={styles.groupHeader}>
-              <button className="btn btn-outline" onClick={selectAll}>
-                {selectedIds.size === customers.length ? '선택 해제' : '전체 선택'}
+              <button className="btn btn-outline" onClick={selectAllFiltered}>
+                {filteredCustomers.length > 0 && filteredCustomers.every(c => selectedIds.has(c.id)) ? '선택 해제' : `전체 선택 (${filteredCustomers.length})`}
               </button>
               {selectedIds.size > 0 && groups.length > 0 && (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -317,17 +374,23 @@ function EmailPage() {
           )}
 
           <div className={styles.recipientList}>
-            {customers.map((customer) => (
-              <label key={customer.id} className={styles.recipientItem}>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(customer.id)}
-                  onChange={() => toggleSelect(customer.id)}
-                />
-                <span className={styles.recipientName}>{customer.name}</span>
-                <span className={styles.recipientEmail}>{customer.email}</span>
-              </label>
-            ))}
+            {filteredCustomers.length === 0 ? (
+              <div className={styles.noResults}>
+                {searchQuery ? '검색 결과가 없습니다' : '고객이 없습니다'}
+              </div>
+            ) : (
+              filteredCustomers.map((customer) => (
+                <label key={customer.id} className={styles.recipientItem}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(customer.id)}
+                    onChange={() => toggleSelect(customer.id)}
+                  />
+                  <span className={styles.recipientName}>{customer.name}</span>
+                  <span className={styles.recipientEmail}>{customer.email}</span>
+                </label>
+              ))
+            )}
           </div>
           <div className={styles.selectedCount}>
             {selectedIds.size}명 선택됨

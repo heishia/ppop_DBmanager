@@ -18,10 +18,11 @@
     "@ppop/config": "workspace:*",
     "@ppop/types": "workspace:*",
     "@ppop/utils": "workspace:*",
+    "axios": "^1.6.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^6.21.3",
-    "axios": "^1.6.5",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -48,11 +49,15 @@
       "dist-electron/**/*"
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "public/icon.ico"
     },
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "icon": "public/icon.icns"
     },
     "nsis": {

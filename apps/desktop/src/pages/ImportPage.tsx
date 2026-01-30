@@ -3,34 +3,12 @@ import { importFromBuffer, previewFromBuffer, type PreviewResult, type ColumnMap
 import type { ImportResult } from '@ppop/types';
 import styles from './ImportPage.module.css';
 
+// 귀여운 아이콘들
+import { PiDogFill, PiSparkle, PiMagicWandFill, PiCheckCircleFill, PiFileCsvFill } from 'react-icons/pi';
+import { HiSparkles } from 'react-icons/hi2';
+import { RiRobot2Fill } from 'react-icons/ri';
+
 type Step = 'select' | 'preview' | 'result';
-
-// AI 스파클 아이콘
-const SparkleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-    <circle cx="12" cy="12" r="3" fill="currentColor" />
-  </svg>
-);
-
-// 강아지 아이콘
-const DogIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-    {/* 귀 */}
-    <path d="M4 4c0 3 1 5 3 6" strokeLinecap="round" />
-    <path d="M20 4c0 3-1 5-3 6" strokeLinecap="round" />
-    {/* 얼굴 */}
-    <ellipse cx="12" cy="13" rx="7" ry="6" />
-    {/* 눈 */}
-    <circle cx="9" cy="12" r="1.2" fill="currentColor" />
-    <circle cx="15" cy="12" r="1.2" fill="currentColor" />
-    {/* 코 */}
-    <ellipse cx="12" cy="15" rx="1.5" ry="1" fill="currentColor" />
-    {/* 입 */}
-    <path d="M12 16v1.5" strokeLinecap="round" />
-    <path d="M10 17.5c.5.5 1.5.8 2 .8s1.5-.3 2-.8" strokeLinecap="round" />
-  </svg>
-);
 
 function ImportPage() {
   const [step, setStep] = useState<Step>('select');
@@ -82,7 +60,6 @@ function ImportPage() {
 
     try {
       setLoading(true);
-      setLoadingMessage('데이터를 가져오는 중...');
 
       const importResult = await importFromBuffer(fileData.buffer, fileData.name, preview.mapping);
       setResult(importResult);
@@ -91,7 +68,6 @@ function ImportPage() {
       setError(err instanceof Error ? err.message : '가져오기 실패');
     } finally {
       setLoading(false);
-      setLoadingMessage('');
     }
   };
 
@@ -108,7 +84,7 @@ function ImportPage() {
       <div className={styles.header}>
         <h1>
           <span className={styles.aiGradient}>AI</span> 자동 가져오기
-          <span className={styles.sparkle}><SparkleIcon /></span>
+          <span className={styles.sparkle}><HiSparkles size={20} /></span>
         </h1>
         <p className={styles.description}>
           어떤 형식의 파일이든 AI가 자동으로 분석하고 변환해요
@@ -123,14 +99,14 @@ function ImportPage() {
         </div>
         <div className={styles.stepLine} />
         <div className={`${styles.step} ${step === 'preview' ? styles.active : ''} ${step === 'result' ? styles.done : ''}`}>
-          <span className={`${styles.stepNumber} ${styles.aiStep}`}>
-            <AIIcon />
-          </span>
+          <span className={styles.stepNumber}>2</span>
           <span className={styles.stepLabel}>AI 분석</span>
         </div>
         <div className={styles.stepLine} />
         <div className={`${styles.step} ${step === 'result' ? styles.active : ''}`}>
-          <span className={styles.stepNumber}>3</span>
+          <span className={`${styles.stepNumber} ${styles.dogStep}`}>
+            <PiDogFill size={20} />
+          </span>
           <span className={styles.stepLabel}>완료</span>
         </div>
       </div>
@@ -150,12 +126,12 @@ function ImportPage() {
         <div className={`card ${styles.uploadCard}`}>
           <div className={styles.uploadArea}>
             <div className={styles.uploadIcon}>
-              <DogIcon />
+              <PiDogFill size={36} />
             </div>
             <h3>파일을 선택하세요</h3>
             <p>CSV, XLSX, XLS 모두 지원</p>
             <div className={styles.aiBadge}>
-              <SparkleIcon />
+              <PiMagicWandFill size={14} />
               <span>AI가 열 이름을 자동 인식</span>
             </div>
             <button
@@ -175,7 +151,7 @@ function ImportPage() {
           <div className={styles.aiLoader}>
             <div className={styles.aiLoaderRing} />
             <div className={styles.aiLoaderIcon}>
-              <AIIcon />
+              <RiRobot2Fill size={24} />
             </div>
           </div>
           <p className={styles.loadingText}>{loadingMessages[loadingPhase]}</p>
@@ -194,7 +170,7 @@ function ImportPage() {
           <div className={`card ${styles.mappingCard}`}>
             <div className={styles.mappingHeader}>
               <div className={styles.aiSuccessBadge}>
-                <SparkleIcon />
+                <PiCheckCircleFill size={14} />
                 <span>AI 분석 완료</span>
               </div>
               <p className={styles.fileInfo}>

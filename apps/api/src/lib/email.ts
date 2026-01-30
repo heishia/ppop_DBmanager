@@ -1,28 +1,27 @@
 import nodemailer from 'nodemailer';
 import type { SendEmailDto, EmailResult } from '@ppop/types';
+import { getSmtpSettings, isSmtpConfigured } from '../services/settings.service';
 
-let transporter: nodemailer.Transporter | null = null;
-
-function getTransporter(): nodemailer.Transporter {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: process.env.SMTP_PORT === '465',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  }
-  return transporter;
+// 매번 최신 설정으로 transporter 생성 (설정이 변경될 수 있으므로)
+function createTransporter(): nodemailer.Transporter {
+  const smtp = getSmtpSettings();
+  return nodemailer.createTransport({
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.port === 465,
+    auth: {
+      user: smtp.user,
+      pass: smtp.pass,
+    },
+  });
 }
 
 export async function sendEmail(dto: SendEmailDto): Promise<EmailResult> {
   try {
-    const transport = getTransporter();
+    const smtp = getSmtpSettings();
+    const transport = createTransporter();
     const info = await transport.sendMail({
-      from: process.env.SMTP_FROM,
+      from: smtp.from,
       to: dto.to,
       subject: dto.subject,
       html: dto.body,
@@ -43,7 +42,10 @@ export async function sendEmail(dto: SendEmailDto): Promise<EmailResult> {
 
 export async function verifyEmailConfig(): Promise<boolean> {
   try {
-    const transport = getTransporter();
+    if (!isSmtpConfigured()) {
+      return false;
+    }
+    const transport = createTransporter();
     await transport.verify();
     return true;
   } catch {

@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getCustomers, deleteCustomer, createCustomer } from '../lib/api';
-import type { CustomerWithContacts, CreateCustomerDto } from '@ppop/types';
+import { getCustomers, deleteCustomer, createCustomer, searchCustomers } from '../lib/api';
+import type { CustomerWithContacts, CreateCustomerDto, Customer } from '@ppop/types';
 import styles from './CustomerList.module.css';
 
 function CustomerList() {
   const [customers, setCustomers] = useState<CustomerWithContacts[]>([]);
+  const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const [formData, setFormData] = useState<CreateCustomerDto>({
     name: '',
     email: '',
@@ -22,12 +26,36 @@ function CustomerList() {
       const result = await getCustomers(page);
       setCustomers(result.items);
       setTotalPages(result.totalPages);
+      setTotalCount(result.total);
     } catch (error) {
       console.error('Failed to load customers:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // 디바운스된 검색
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchCustomers(searchQuery.trim());
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Search failed:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     loadCustomers();
@@ -59,16 +87,51 @@ function CustomerList() {
     return new Date(date).toLocaleDateString();
   };
 
+  const displayCustomers = searchQuery.trim() ? searchResults : customers;
+  const showPagination = !searchQuery.trim();
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1>고객 목록</h1>
+        <div className={styles.titleRow}>
+          <h1>고객 목록</h1>
+          <span className={styles.totalCount}>총 {totalCount.toLocaleString()}명</span>
+        </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
           고객 추가
         </button>
       </div>
 
-      {loading ? (
+      <div className={styles.searchBar}>
+        <input
+          type="text"
+          className="input"
+          placeholder="이름, 이메일, 전화번호로 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button
+            className={styles.clearBtn}
+            onClick={() => setSearchQuery('')}
+            title="검색어 지우기"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {searchQuery.trim() && (
+        <div className={styles.searchInfo}>
+          {isSearching ? (
+            <span>검색 중...</span>
+          ) : (
+            <span>{searchResults.length}개의 검색 결과</span>
+          )}
+        </div>
+      )}
+
+      {loading && !searchQuery ? (
         <div className={styles.loading}>불러오는 중...</div>
       ) : (
         <>
@@ -79,62 +142,78 @@ function CustomerList() {
                   <th>이름</th>
                   <th>이메일</th>
                   <th>전화번호</th>
-                  <th>컨택 횟수</th>
-                  <th>최근 컨택</th>
+                  {!searchQuery.trim() && <th>컨택 횟수</th>}
+                  {!searchQuery.trim() && <th>최근 컨택</th>}
                   <th>작업</th>
                 </tr>
               </thead>
               <tbody>
-                {customers.map((customer) => (
-                  <tr key={customer.id}>
-                    <td>
-                      <Link to={`/customer/${customer.id}`} className={styles.nameLink}>
-                        {customer.name}
-                      </Link>
-                    </td>
-                    <td>{customer.email}</td>
-                    <td>{customer.phone}</td>
-                    <td>
-                      <span className="badge badge-success">{customer.totalContacts}</span>
-                    </td>
-                    <td>
-                      {customer.recentContacts.length > 0
-                        ? formatDate(customer.recentContacts[0].contactedAt)
-                        : '-'}
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => handleDelete(customer.id)}
-                      >
-                        삭제
-                      </button>
+                {displayCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={searchQuery.trim() ? 4 : 6} className={styles.noResults}>
+                      {searchQuery.trim() ? '검색 결과가 없습니다' : '고객이 없습니다'}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  displayCustomers.map((customer) => (
+                    <tr key={customer.id}>
+                      <td>
+                        <Link to={`/customer/${customer.id}`} className={styles.nameLink}>
+                          {customer.name}
+                        </Link>
+                      </td>
+                      <td>{customer.email}</td>
+                      <td>{customer.phone}</td>
+                      {!searchQuery.trim() && (
+                        <td>
+                          <span className="badge badge-success">
+                            {(customer as CustomerWithContacts).totalContacts}
+                          </span>
+                        </td>
+                      )}
+                      {!searchQuery.trim() && (
+                        <td>
+                          {(customer as CustomerWithContacts).recentContacts?.length > 0
+                            ? formatDate((customer as CustomerWithContacts).recentContacts[0].contactedAt)
+                            : '-'}
+                        </td>
+                      )}
+                      <td>
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => handleDelete(customer.id)}
+                        >
+                          삭제
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          <div className={styles.pagination}>
-            <button
-              className="btn btn-outline"
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-            >
-              이전
-            </button>
-            <span>
-              {page} / {totalPages} 페이지
-            </span>
-            <button
-              className="btn btn-outline"
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              다음
-            </button>
-          </div>
+          {showPagination && (
+            <div className={styles.pagination}>
+              <button
+                className="btn btn-outline"
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+              >
+                이전
+              </button>
+              <span>
+                {page} / {totalPages} 페이지
+              </span>
+              <button
+                className="btn btn-outline"
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                다음
+              </button>
+            </div>
+          )}
         </>
       )}
 

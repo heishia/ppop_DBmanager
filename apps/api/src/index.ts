@@ -5,6 +5,7 @@ import { contactRouter } from './routes/contact.routes';
 import { emailRouter } from './routes/email.routes';
 import { importRouter } from './routes/import.routes';
 import { groupRouter } from './routes/group.routes';
+import { settingsRouter } from './routes/settings.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { API_CONFIG } from '@ppop/config';
 
@@ -21,6 +22,7 @@ app.use('/api/contacts', contactRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/import', importRouter);
 app.use('/api/groups', groupRouter);
+app.use('/api/settings', settingsRouter);
 
 // Health check
 app.get('/health', (_, res) => {
