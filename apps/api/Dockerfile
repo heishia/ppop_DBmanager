@@ -19,7 +19,7 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 
-# Copy dependencies
+# Copy all dependencies (pnpm hoists to root node_modules)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/types/node_modules ./packages/types/node_modules
 COPY --from=deps /app/packages/config/node_modules ./packages/config/node_modules
@@ -56,22 +56,30 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 apiuser
 
-# Copy built files
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/node_modules ./node_modules
-COPY --from=builder /app/apps/api/prisma ./prisma
-COPY --from=builder /app/packages/types/dist ./node_modules/@ppop/types/dist
-COPY --from=builder /app/packages/config/dist ./node_modules/@ppop/config/dist
-COPY --from=builder /app/packages/utils/dist ./node_modules/@ppop/utils/dist
+# Copy package files for production install
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/config/package.json ./packages/config/
+COPY packages/utils/package.json ./packages/utils/
+COPY apps/api/package.json ./apps/api/
 
-# Create startup script that runs migrations then starts server
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma migrate deploy' >> /app/start.sh && \
-    echo 'node dist/index.js' >> /app/start.sh && \
-    chmod +x /app/start.sh
+# Install production dependencies only
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy built dist files
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+COPY --from=builder /app/packages/types/dist ./packages/types/dist
+COPY --from=builder /app/packages/config/dist ./packages/config/dist
+COPY --from=builder /app/packages/utils/dist ./packages/utils/dist
+
+# Generate Prisma client in runner
+WORKDIR /app/apps/api
+RUN npx prisma generate
 
 USER apiuser
 
 EXPOSE 3001
 
-CMD ["/app/start.sh"]
+# Run migrations then start server
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
